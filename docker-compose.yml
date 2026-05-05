@@ -1,7 +1,7 @@
 ---
 services:
   netbox:
-    image: ghcr.io/ercmodel3/network-orchestrator-netbox:v4.5-r1
+    image: ghcr.io/ercmodel3/network-orchestrator-netbox:${NETBOX_IMAGE_TAG}
     depends_on:
       postgres:
         condition: service_healthy
@@ -25,7 +25,7 @@ services:
       retries: 3
 
   netbox-worker:
-    image: ghcr.io/ercmodel3/network-orchestrator-netbox:v4.5-r1
+    image: ghcr.io/ercmodel3/network-orchestrator-netbox:${NETBOX_IMAGE_TAG}
     depends_on:
       netbox:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
       - rqworker
 
   netbox-housekeeping:
-    image: ghcr.io/ercmodel3/network-orchestrator-netbox:v4.5-r1
+    image: ghcr.io/ercmodel3/network-orchestrator-netbox:${NETBOX_IMAGE_TAG}
     depends_on:
       netbox:
         condition: service_healthy
