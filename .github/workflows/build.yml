@@ -1,1 +1,69 @@
-# docker compose build --no-cache
+name: Build and push image
+
+on:
+  push:
+    tags:
+      - 'v*.*-r*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image version tag (e.g. v4.5-r1)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Resolve version tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push git tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ inputs.version }}
+          git push origin ${{ inputs.version }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: ghcr.io/${{ github.repository_owner }}/network-orchestrator-netbox:${{ steps.version.outputs.tag }}
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@0.36.0 # latest at the time of writing
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/network-orchestrator-netbox:${{ steps.version.outputs.tag }}
+          format: table
+          exit-code: 1
+          severity: CRITICAL
+
+      - name: Push image
+        run: docker push ghcr.io/${{ github.repository_owner }}/network-orchestrator-netbox:${{ steps.version.outputs.tag }}
