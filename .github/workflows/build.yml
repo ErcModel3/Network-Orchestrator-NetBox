@@ -51,13 +51,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image
+      - name: Build amd64 image for scanning
         uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64
           push: false
           load: true
           tags: ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0 # latest at the time of writing
@@ -67,5 +70,11 @@ jobs:
           exit-code: 1
           severity: CRITICAL
 
-      - name: Push image
-        run: docker push ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
+      - name: Build and push multi-platform image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
+          cache-from: type=gha
