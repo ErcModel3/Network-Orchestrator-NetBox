@@ -24,7 +24,7 @@ jobs:
         run: pip install yamllint
 
       - name: Lint YAML files
-        run: yamllint .
+        run: yamllint -f github .
 
       - name: Lint Python config files
         uses: astral-sh/ruff-action@v3

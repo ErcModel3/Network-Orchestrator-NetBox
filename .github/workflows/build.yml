@@ -1,7 +1,7 @@
 ---
 name: Build and push image
 
-on:
+"on":
   push:
     tags:
       - 'v*.*-r*'
@@ -31,7 +31,8 @@ jobs:
           else
             echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
-          echo "image=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/network-orchestrator-netbox" >> $GITHUB_OUTPUT
+          owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
+          echo "image=ghcr.io/${owner}/network-orchestrator-netbox" >> $GITHUB_OUTPUT
 
       - name: Create and push git tag
         if: github.event_name == 'workflow_dispatch'
@@ -63,7 +64,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@v0.36.0 # latest at the time of writing
+        uses: aquasecurity/trivy-action@v0.36.0  # latest at the time of writing
         with:
           image-ref: ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
           format: table
