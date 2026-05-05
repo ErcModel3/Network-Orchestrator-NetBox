@@ -1,0 +1,112 @@
+services:
+  netbox:
+    image: ghcr.io/ercmodel3/network-orchestrator-netbox:v4.5-r1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    env_file: .env
+    user: unit:root
+    volumes:
+      - netbox-media:/opt/netbox/netbox/media:z
+      - netbox-reports:/opt/netbox/netbox/reports:z
+      - netbox-scripts:/opt/netbox/netbox/scripts:z
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: curl -f http://localhost:8080/api/ || exit 1
+      start_period: 60s
+      interval: 15s
+      timeout: 3s
+      retries: 3
+
+  netbox-worker:
+    image: ghcr.io/ercmodel3/network-orchestrator-netbox:v4.5-r1
+    depends_on:
+      netbox:
+        condition: service_healthy
+    env_file: .env
+    user: unit:root
+    volumes:
+      - netbox-media:/opt/netbox/netbox/media:z
+      - netbox-reports:/opt/netbox/netbox/reports:z
+      - netbox-scripts:/opt/netbox/netbox/scripts:z
+    command:
+      - /opt/netbox/venv/bin/python
+      - /opt/netbox/netbox/manage.py
+      - rqworker
+
+  netbox-housekeeping:
+    image: ghcr.io/ercmodel3/network-orchestrator-netbox:v4.5-r1
+    depends_on:
+      netbox:
+        condition: service_healthy
+    env_file: .env
+    user: unit:root
+    volumes:
+      - netbox-media:/opt/netbox/netbox/media:z
+      - netbox-reports:/opt/netbox/netbox/reports:z
+      - netbox-scripts:/opt/netbox/netbox/scripts:z
+    command:
+      - /opt/netbox/venv/bin/python
+      - /opt/netbox/netbox/manage.py
+      - housekeeping
+
+  postgres:
+    image: postgres:16-alpine
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - netbox-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -q -t 2 -d $$POSTGRES_DB -U $$POSTGRES_USER
+      start_period: 20s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command:
+      - sh
+      - -c
+      - redis-server --appendonly yes --requirepass $$REDIS_PASSWORD
+    env_file: .env
+    volumes:
+      - netbox-redis:/data
+    healthcheck:
+      test: redis-cli -a $$REDIS_PASSWORD ping | grep -q PONG
+      start_period: 5s
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis-cache:
+    image: redis:7-alpine
+    command:
+      - sh
+      - -c
+      - redis-server --requirepass $$REDIS_CACHE_PASSWORD
+    env_file: .env
+    volumes:
+      - netbox-redis-cache:/data
+    healthcheck:
+      test: redis-cli -a $$REDIS_CACHE_PASSWORD ping | grep -q PONG
+      start_period: 5s
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  netbox-media:
+  netbox-reports:
+  netbox-scripts:
+  netbox-postgres:
+  netbox-redis:
+  netbox-redis-cache:

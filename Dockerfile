@@ -1,3 +1,5 @@
+# Taken from the upstream NetBox community docker repo
+
 FROM netboxcommunity/netbox:v4.5
 
 COPY ./plugin_requirements.txt /opt/netbox/
