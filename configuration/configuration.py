@@ -2,7 +2,6 @@ import re
 from os import environ
 from os.path import abspath, dirname, join
 from typing import Any, Callable
-from netbox_branching.utilities import DynamicSchemaDict
 
 # For reference see https://docs.netbox.dev/en/stable/configuration/
 # Based on https://github.com/netbox-community/netbox/blob/develop/netbox/netbox/configuration_example.py
@@ -10,11 +9,6 @@ from netbox_branching.utilities import DynamicSchemaDict
 ###
 # NetBox-Docker Helper functions
 ###
-
-DATABASE_ROUTERS = [
-    'netbox_branching.database.BranchAwareRouter',
-]
-
 
 # Read secret from file
 def _read_secret(secret_name: str, default: str | None = None) -> str | None:
@@ -68,25 +62,6 @@ ALLOWED_HOSTS = environ.get('ALLOWED_HOSTS', '*').split(' ')
 # ensure that '*' or 'localhost' is always in ALLOWED_HOSTS (needed for health checks)
 if '*' not in ALLOWED_HOSTS and 'localhost' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('localhost')
-
-# PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
-#   https://docs.djangoproject.com/en/stable/ref/settings/#databases
-DATABASES = DynamicSchemaDict({
-    'default': {
-        'NAME': environ.get('DB_NAME', 'netbox'),       # Database name
-        'USER': environ.get('DB_USER', ''),             # PostgreSQL username
-        'PASSWORD': _read_secret('db_password', environ.get('DB_PASSWORD', '')),
-                                                        # PostgreSQL password
-        'HOST': environ.get('DB_HOST', 'localhost'),    # Database server
-        'PORT': environ.get('DB_PORT', ''),             # Database port (leave blank for default)
-        'OPTIONS': {'sslmode': environ.get('DB_SSLMODE', 'prefer')},
-                                                        # Database connection SSLMODE
-        'CONN_MAX_AGE': _environ_get_and_map('DB_CONN_MAX_AGE', '300', _AS_INT),
-                                                        # Max database connection age
-        'DISABLE_SERVER_SIDE_CURSORS': _environ_get_and_map('DB_DISABLE_SERVER_SIDE_CURSORS', 'False', _AS_BOOL),
-                                                        # Disable the use of server-side cursors transaction pooling
-    }
-})
 
 # Redis database settings. Redis is used for caching and for queuing background tasks such as webhook events. A separate
 # configuration exists for each. Full connection details are required in both sections, and it is strongly recommended

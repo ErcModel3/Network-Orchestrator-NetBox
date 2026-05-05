@@ -10,11 +10,11 @@ services:
       redis-cache:
         condition: service_healthy
     env_file: .env
-    user: unit:root
+
     volumes:
-      - netbox-media:/opt/netbox/netbox/media:z
-      - netbox-reports:/opt/netbox/netbox/reports:z
-      - netbox-scripts:/opt/netbox/netbox/scripts:z
+      - netbox-media:/opt/netbox/netbox/media
+      - netbox-reports:/opt/netbox/netbox/reports
+      - netbox-scripts:/opt/netbox/netbox/scripts
     ports:
       - 8080:8080
     healthcheck:
@@ -30,11 +30,11 @@ services:
       netbox:
         condition: service_healthy
     env_file: .env
-    user: unit:root
+
     volumes:
-      - netbox-media:/opt/netbox/netbox/media:z
-      - netbox-reports:/opt/netbox/netbox/reports:z
-      - netbox-scripts:/opt/netbox/netbox/scripts:z
+      - netbox-media:/opt/netbox/netbox/media
+      - netbox-reports:/opt/netbox/netbox/reports
+      - netbox-scripts:/opt/netbox/netbox/scripts
     command:
       - /opt/netbox/venv/bin/python
       - /opt/netbox/netbox/manage.py
@@ -46,11 +46,11 @@ services:
       netbox:
         condition: service_healthy
     env_file: .env
-    user: unit:root
+
     volumes:
-      - netbox-media:/opt/netbox/netbox/media:z
-      - netbox-reports:/opt/netbox/netbox/reports:z
-      - netbox-scripts:/opt/netbox/netbox/scripts:z
+      - netbox-media:/opt/netbox/netbox/media
+      - netbox-reports:/opt/netbox/netbox/reports
+      - netbox-scripts:/opt/netbox/netbox/scripts
     command:
       - /opt/netbox/venv/bin/python
       - /opt/netbox/netbox/manage.py
