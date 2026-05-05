@@ -1,3 +1,4 @@
+---
 services:
   netbox:
     image: ghcr.io/ercmodel3/network-orchestrator-netbox:v4.5-r1
