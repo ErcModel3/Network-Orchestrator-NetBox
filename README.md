@@ -6,6 +6,9 @@ As it's a docker project, I'll still follow best practice using linters and heal
 
 The repo tracks the upstream netbox docker image, starting at 4.5 with additional releases appended with -r1/2/3...  and additional changes that I add with plugins (trying to hardcode versions with the number of supply chain attacks there have been recently).
 
+To create the super user run this command as normal:
+```docker compose exec netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py createsuperuser```
+
 Citations:
 * [NetBox Docs](https://github.com/netbox-community/netbox-docker/wiki/Using-Netbox-Plugins)
 * [NetBox Docker](https://hub.docker.com/r/netboxcommunity/netbox/tags)
