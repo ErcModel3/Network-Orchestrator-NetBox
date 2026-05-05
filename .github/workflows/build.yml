@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Resolve version tag
+      - name: Resolve version tag and image name
         id: version
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -31,6 +31,7 @@ jobs:
           else
             echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
+          echo "image=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/network-orchestrator-netbox" >> $GITHUB_OUTPUT
 
       - name: Create and push git tag
         if: github.event_name == 'workflow_dispatch'
@@ -56,15 +57,15 @@ jobs:
           context: .
           push: false
           load: true
-          tags: ghcr.io/${{ github.repository_owner }}/network-orchestrator-netbox:${{ steps.version.outputs.tag }}
+          tags: ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
 
       - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0 # latest at the time of writing
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/network-orchestrator-netbox:${{ steps.version.outputs.tag }}
+          image-ref: ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
           format: table
           exit-code: 1
           severity: CRITICAL
 
       - name: Push image
-        run: docker push ghcr.io/${{ github.repository_owner }}/network-orchestrator-netbox:${{ steps.version.outputs.tag }}
+        run: docker push ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
