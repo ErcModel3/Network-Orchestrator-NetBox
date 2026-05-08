@@ -1,0 +1,1 @@
+These just need to be cycled, they're the netbox hardcoded defaults, to harden this properly you could have variable references stored as secret refs and inject them on deploy via ansible or something

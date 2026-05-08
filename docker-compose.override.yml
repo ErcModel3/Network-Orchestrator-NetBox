@@ -1,0 +1,13 @@
+---
+services:
+  netbox:
+    image: netbox:custom-plugins
+    pull_policy: never
+    ports:
+      - 8000:8080
+    build:
+      context: .
+      dockerfile: dockerfile
+  netbox-worker:
+    image: netbox:custom-plugins
+    pull_policy: never

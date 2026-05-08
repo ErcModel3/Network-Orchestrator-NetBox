@@ -1,0 +1,2 @@
+netboxlabs-netbox-custom-objects==0.4.10
+netboxlabs-netbox-branching==1.0.0
