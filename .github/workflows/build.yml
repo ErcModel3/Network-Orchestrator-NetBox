@@ -4,11 +4,11 @@ name: Build and push image
 "on":
   push:
     tags:
-      - 'v*.*-r*'
+      - "v*.*-r*"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Image version tag (e.g. v4.5-r1)'
+        description: "Image version tag (e.g. v4.5-r1)"
         required: true
         type: string
 
@@ -64,7 +64,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@v0.36.0  # latest at the time of writing
+        uses: aquasecurity/trivy-action@v0.36.0 # latest at the time of writing
         with:
           image-ref: ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
           format: table
