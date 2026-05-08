@@ -1,13 +1,29 @@
 I needed somewhere to build a custom netbox image outside of my docker-compose file in my main [Network Orchestrator Platform repo](https://github.com/ErcModel3/Network-Orchestrator-Platform).
 
-This repo just pulls from NetBox, allows me to add my plugins (NetBox branching and Custom Objects) and bulid an image, while de-coupling versions of each of them here.
+This repo just pulls from the standard NetBox-Docker repo (might aswell have been a fork), allows me to add my plugins (NetBox branching and Custom Objects) and bulid an image, while de-coupling versions of each of them here.
+
+To use this custom image elsewhere you'll still need to:
+* have an env dir with all of the secrets filled
+* copy the configuration dir into the project
 
 As it's a docker project, I'll still follow best practice using linters and health checks, those being [hadolint](https://github.com/hadolint/hadolint), the more universal [yamllint](https://yamllint.readthedocs.io/en/stable/) and a [tox](https://tox.wiki/en/4.17.2/) test for the python files.
 
-The repo tracks the upstream netbox docker image, starting at 4.5 with additional releases appended with -r1/2/3...  and additional changes that I add with plugins (trying to hardcode versions with the number of supply chain attacks there have been recently).
+The repo tracks the upstream netbox docker image, starting at netboxcommunity/netbox:v4.5-4.0.2 with additional releases appended with -r1/2/3...  and additional changes that I add with plugins (trying to hardcode versions with the number of supply chain attacks there have been recently).
+
+To work and develop locally, run commands:
+
+```
+docker compose pull
+
+docker compose up --bulid
+```
+
+And this will verify if things are working as normal, the custom netbox image can be used by copying the `docker-compose.yml-example` which references the images built by this codebase.
 
 To create the super user run this command as normal:
-```docker compose exec netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py createsuperuser```
+```
+docker compose exec netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py createsuperuser
+```
 
 Citations:
 * [NetBox Docs](https://github.com/netbox-community/netbox-docker/wiki/Using-Netbox-Plugins)
