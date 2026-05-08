@@ -1,7 +1,7 @@
 ---
 name: Pre-build checks
 
-on: [push]
+"on": [push]
 
 jobs:
   lint:
